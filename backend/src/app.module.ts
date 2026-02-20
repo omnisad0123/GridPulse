@@ -7,6 +7,7 @@ import { AlertsModule } from './alerts/alerts.module';
 import { AuditModule } from './audit/audit.module';
 import { ExportsModule } from './exports/exports.module';
 import { HealthModule } from './health/health.module';
+import { HistoryModule } from './history/history.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -18,6 +19,7 @@ import { AppService } from './app.service';
     IngestModule,
     AnalyticsModule,
     StatusModule,
+    HistoryModule,
     ExportsModule,
     HealthModule,
   ],

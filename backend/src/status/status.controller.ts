@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { StatusService } from './status.service';
 
 @Controller('v1/status')
@@ -10,8 +10,18 @@ export class StatusController {
     return this.status.getMeter(meterId);
   }
 
+  @Get('meters')
+  listMeters(@Query() query: any) {
+    return this.status.listMeters(query);
+  }
+
   @Get('vehicles/:vehicleId')
   getVehicle(@Param('vehicleId') vehicleId: string) {
     return this.status.getVehicle(vehicleId);
+  }
+
+  @Get('vehicles')
+  listVehicles(@Query() query: any) {
+    return this.status.listVehicles(query);
   }
 }

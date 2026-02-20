@@ -11,6 +11,8 @@ import { AlertRule } from './entities/alert-rule.entity';
 import { AuditLog } from './entities/audit-log.entity';
 import { ExportJob } from './entities/export-job.entity';
 import { isWithinWindow } from '../common/utils/date-window.util';
+import { paginate } from '../common/utils/pagination.util';
+import { average, round } from '../common/utils/numeric.util';
 
 interface Store {
   meterReadings: MeterReading[];
@@ -137,6 +139,36 @@ export class DatabaseService implements OnModuleDestroy {
     return result.rows[0] ? this.mapVehicleStatus(result.rows[0]) : null;
   }
 
+  async listMeterStatuses(page = 1, limit = 25) {
+    if (this.isTest) {
+      return paginate(
+        [...this.store.meterStatus.values()].sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()),
+        { page, limit },
+      );
+    }
+    const result = await this.pool!.query(
+      `SELECT meter_id, kwh_consumed_ac, voltage, last_updated
+       FROM current_meter_status
+       ORDER BY last_updated DESC`,
+    );
+    return paginate(result.rows.map((row) => this.mapMeterStatus(row)), { page, limit });
+  }
+
+  async listVehicleStatuses(page = 1, limit = 25) {
+    if (this.isTest) {
+      return paginate(
+        [...this.store.vehicleStatus.values()].sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()),
+        { page, limit },
+      );
+    }
+    const result = await this.pool!.query(
+      `SELECT vehicle_id, soc, kwh_delivered_dc, battery_temp, last_updated
+       FROM current_vehicle_status
+       ORDER BY last_updated DESC`,
+    );
+    return paginate(result.rows.map((row) => this.mapVehicleStatus(row)), { page, limit });
+  }
+
   meterReadingsBetween(from: Date, to: Date) {
     return this.store.meterReadings.filter((reading) => isWithinWindow(reading.timestamp, from, to));
   }
@@ -161,6 +193,59 @@ export class DatabaseService implements OnModuleDestroy {
       [from, to],
     );
     return result.rows.map((row) => this.mapVehicleReading(row));
+  }
+
+  async listMeterHistory(meterId: string, page = 1, limit = 25) {
+    const readings = this.isTest
+      ? this.store.meterReadings.filter((reading) => reading.meterId === meterId)
+      : (await this.queryMeterHistory(meterId));
+    return paginate(
+      readings.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
+      { page, limit },
+    );
+  }
+
+  async listVehicleHistory(vehicleId: string, page = 1, limit = 25) {
+    const readings = this.isTest
+      ? this.store.vehicleReadings.filter((reading) => reading.vehicleId === vehicleId)
+      : (await this.queryVehicleHistory(vehicleId));
+    return paginate(
+      readings.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
+      { page, limit },
+    );
+  }
+
+  async summarizeMeterHistory(meterId: string) {
+    const readings = this.isTest
+      ? this.store.meterReadings.filter((reading) => reading.meterId === meterId)
+      : await this.queryMeterHistory(meterId);
+    return {
+      meterId,
+      count: readings.length,
+      kwhConsumedAc: this.stats(readings.map((reading) => reading.kwhConsumedAc)),
+      voltage: this.stats(readings.map((reading) => reading.voltage)),
+    };
+  }
+
+  async summarizeVehicleHistory(vehicleId: string) {
+    const readings = this.isTest
+      ? this.store.vehicleReadings.filter((reading) => reading.vehicleId === vehicleId)
+      : await this.queryVehicleHistory(vehicleId);
+    return {
+      vehicleId,
+      count: readings.length,
+      soc: this.stats(readings.map((reading) => reading.soc)),
+      kwhDeliveredDc: this.stats(readings.map((reading) => reading.kwhDeliveredDc)),
+      batteryTemp: this.stats(readings.map((reading) => reading.batteryTemp)),
+    };
+  }
+
+  async healthCheck() {
+    if (this.isTest) {
+      return { ok: true, mode: 'memory', checkedAt: new Date().toISOString() };
+    }
+    await this.pool!.query('SELECT 1');
+    return { ok: true, mode: 'postgres', checkedAt: new Date().toISOString() };
   }
 
   async listAlertRules(): Promise<AlertRule[]> {
@@ -245,6 +330,33 @@ export class DatabaseService implements OnModuleDestroy {
   private createPool(): any {
     const pg = require('pg');
     return new pg.Pool(databaseConfig());
+  }
+
+  private async queryMeterHistory(meterId: string): Promise<MeterReading[]> {
+    const result = await this.pool!.query(
+      `SELECT * FROM meter_readings WHERE meter_id = $1 ORDER BY timestamp DESC`,
+      [meterId],
+    );
+    return result.rows.map((row) => this.mapMeterReading(row));
+  }
+
+  private async queryVehicleHistory(vehicleId: string): Promise<VehicleReading[]> {
+    const result = await this.pool!.query(
+      `SELECT * FROM vehicle_readings WHERE vehicle_id = $1 ORDER BY timestamp DESC`,
+      [vehicleId],
+    );
+    return result.rows.map((row) => this.mapVehicleReading(row));
+  }
+
+  private stats(values: number[]) {
+    if (!values.length) {
+      return { min: null, max: null, avg: null };
+    }
+    return {
+      min: round(Math.min(...values)),
+      max: round(Math.max(...values)),
+      avg: round(average(values) ?? 0),
+    };
   }
 
   private mapMeterStatus(row: any): CurrentMeterStatus {

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { last24Hours } from '../common/utils/date-window.util';
-import { round } from '../common/utils/numeric.util';
+import { hoursWindow } from '../common/utils/date-window.util';
+import { round, safeDivide } from '../common/utils/numeric.util';
 
 @Injectable()
 export class AnalyticsService {
   constructor(private readonly database: DatabaseService) {}
 
-  async getPerformance(vehicleId: string) {
-    const { from, to } = last24Hours();
+  async getPerformance(vehicleId: string, hours = 24) {
+    const { from, to, hours: windowHours } = hoursWindow(hours);
     const meterReadings = await this.database.findMeterReadings(from, to);
     const vehicleReadings = (await this.database.findVehicleReadings(from, to)).filter((reading) => reading.vehicleId === vehicleId);
     const totalAc = meterReadings.reduce((sum, reading) => sum + reading.kwhConsumedAc, 0);
@@ -18,15 +18,16 @@ export class AnalyticsService {
       : null;
     return {
       vehicleId,
+      hours: windowHours,
       totalAc: round(totalAc),
       totalDc: round(totalDc),
-      efficiency: totalAc > 0 ? round(totalDc / totalAc) : null,
+      efficiency: totalAc > 0 ? round(safeDivide(totalDc, totalAc) ?? 0) : null,
       avgBatteryTemp,
     };
   }
 
   async getFleetSummary() {
-    const { from, to } = last24Hours();
+    const { from, to } = hoursWindow(24);
     const readings = await this.database.findVehicleReadings(from, to);
     const latest = new Map<string, (typeof readings)[number]>();
     for (const reading of readings) {
@@ -46,7 +47,7 @@ export class AnalyticsService {
   }
 
   async getMeterSummary() {
-    const { from, to } = last24Hours();
+    const { from, to } = hoursWindow(24);
     const readings = await this.database.findMeterReadings(from, to);
     const totalAcConsumption = readings.reduce((sum, reading) => sum + reading.kwhConsumedAc, 0);
     return {

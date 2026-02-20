@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 
 @Controller('v1/analytics')
@@ -6,8 +6,8 @@ export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   @Get('performance/:vehicleId')
-  async getPerformance(@Param('vehicleId') vehicleId: string) {
-    return this.analyticsService.getPerformance(vehicleId);
+  async getPerformance(@Param('vehicleId') vehicleId: string, @Query() query: any) {
+    return this.analyticsService.getPerformance(vehicleId, Number(query.hours ?? 24));
   }
 
   @Get('fleet')

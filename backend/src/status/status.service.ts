@@ -16,4 +16,12 @@ export class StatusService {
     if (!status) throw new NotFoundException('Vehicle status not found');
     return status;
   }
+
+  listMeters(query: any) {
+    return this.database.listMeterStatuses(Number(query.page ?? 1), Number(query.limit ?? 25));
+  }
+
+  listVehicles(query: any) {
+    return this.database.listVehicleStatuses(Number(query.page ?? 1), Number(query.limit ?? 25));
+  }
 }
