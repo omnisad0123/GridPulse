@@ -8,6 +8,7 @@ import { AuditModule } from './audit/audit.module';
 import { ExportsModule } from './exports/exports.module';
 import { HealthModule } from './health/health.module';
 import { HistoryModule } from './history/history.module';
+import { ReportsModule } from './reports/reports.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -20,6 +21,7 @@ import { AppService } from './app.service';
     AnalyticsModule,
     StatusModule,
     HistoryModule,
+    ReportsModule,
     ExportsModule,
     HealthModule,
   ],
