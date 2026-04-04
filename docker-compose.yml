@@ -1,26 +1,32 @@
-version: '3.8'
-
 services:
-  db:
-    image: postgres:15
-    container_name: energy_pg
-    restart: always
+  postgres:
+    image: postgres:16
     environment:
-      POSTGRES_DB: energy
-      POSTGRES_USER: energy_user
-      POSTGRES_PASSWORD: energy_pass
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gridpulse
     ports:
       - "5432:5432"
     volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - gridpulse_pgdata:/var/lib/postgresql/data
 
   api:
-    build: .
-    container_name: energy_api
-    command: npm run start:dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: gridpulse
     ports:
       - "3000:3000"
-    depends_on:
-      - db
-    environment:
-      DATABASE_URL: postgresql://energy_user:energy_pass@db:5432/energy
+    command: npm run start:dev
+
+volumes:
+  gridpulse_pgdata:
