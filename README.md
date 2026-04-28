@@ -1,109 +1,66 @@
+# GridPulse
 
-````md
-# High-Scale Energy Ingestion Engine
+GridPulse is a full-stack telemetry ingestion project for smart meters and EV fleets. It is structured to support SWE-bench-style backend tasks with deterministic tests, Docker validation, and clear domain behavior.
 
-Backend service to ingest telemetry from Smart Meters and EVs and provide fast 24-hour performance analytics.
+## Layout
 
----
-
-## Tech Stack
-- NestJS (TypeScript)
-- PostgreSQL
-- Docker, Docker Compose
-
----
-
-## Architecture
-Cold (History – INSERT only)
-- meter_readings
-- vehicle_readings
-
-Hot (Operational – UPSERT)
-- current_meter_status
-- current_vehicle_status
-
-Hot/Cold separation avoids scanning large history tables for current status and analytics.
-
----
-
-## Database
-Tables
-- meter_readings(meter_id, kwh_consumed_ac, voltage, timestamp)
-- vehicle_readings(vehicle_id, soc, kwh_delivered_dc, battery_temp, timestamp)
-- current_meter_status(meter_id, kwh_consumed_ac, voltage, last_updated)
-- current_vehicle_status(vehicle_id, soc, kwh_delivered_dc, battery_temp, last_updated)
-
-Indexes
-- (meter_id, timestamp DESC)
-- (vehicle_id, timestamp DESC)
-
----
-
-## APIs
-
-POST /v1/ingest
-
-Meter Payload
-```json
-{
-  "meterId": "M1",
-  "kwhConsumedAc": 10.5,
-  "voltage": 220,
-  "timestamp": "2026-02-09T10:00:00Z"
-}
-````
-
-Vehicle Payload
-
-```json
-{
-  "vehicleId": "V1",
-  "soc": 60,
-  "kwhDeliveredDc": 8.5,
-  "batteryTemp": 32,
-  "timestamp": "2026-02-09T10:00:00Z"
-}
+```text
+backend/   NestJS API, deterministic Jest tests, PostgreSQL schema
+frontend/  React + Vite dashboard, not required for backend validation
 ```
 
-Behavior
+## Backend API
 
-* History → INSERT
-* Live → UPSERT
+- `POST /v1/ingest` accepts exactly one meter or vehicle reading.
+- `POST /v1/ingest/batch` validates the whole batch before mutation.
+- `GET /v1/status/meters/:meterId` reads current meter status.
+- `GET /v1/status/vehicles/:vehicleId` reads current vehicle status.
+- `GET /v1/analytics/performance/:vehicleId` returns 24-hour vehicle performance.
+- `GET /v1/analytics/fleet` returns 24-hour fleet summary.
+- `GET /v1/analytics/meters` returns 24-hour meter summary.
+- `POST /v1/alerts/rules`, `GET /v1/alerts/rules`, `PATCH /v1/alerts/rules/:ruleId`, and `DELETE /v1/alerts/rules/:ruleId` manage alert rules.
+- `GET /v1/alerts/events` and `GET /v1/alerts/events/:eventId` expose alert events.
+- `GET /v1/audit-logs` lists successful domain mutations.
+- `POST /v1/exports`, `GET /v1/exports`, `GET /v1/exports/:jobId`, and `GET /v1/exports/:jobId/download` manage export jobs.
 
-GET /v1/analytics/performance/:vehicleId
-
-Returns (last 24h)
-
-* totalAc
-* totalDc
-* efficiency (DC / AC)
-* avgBatteryTemp
-
----
-
-## Run Locally
+## Validation
 
 ```bash
-docker-compose up --build
+npm test
+npm run test:ingest
+npm run test:status
+npm run test:analytics
+npm run test:alerts
+npm run test:audit
+npm run test:exports
+npm run build:backend
 ```
 
-API runs at
-[http://localhost:3000](http://localhost:3000)
+The backend test environment uses an in-memory store behind the same service contract as the PostgreSQL path, making Jest deterministic and container-friendly.
 
----
+## Docker
 
-## Scale Notes
+```bash
+docker build -t gridpulse-backend .
+docker compose up --build
+```
 
-* Append-only history for audit
-* Hot tables for fast current reads
-* Indexed time-series queries for 24h analytics
+The root Dockerfile installs and validates only the backend. Frontend installation and build are intentionally separate from backend/Silver validation.
 
----
+## Future Silver Task Candidates
 
-## Assumptions
-
-* meterId and vehicleId map to the same logical device for analytics
-* No auth, no hosting (assessment scope)
-
-
-
+1. Older readings should not overwrite current status.
+2. History must remain append-only during UPSERT.
+3. Mixed meter and vehicle payload should be rejected.
+4. Batch ingest should not partially mutate DB on validation failure.
+5. Analytics must exclude readings older than 24 hours.
+6. Efficiency should be null when AC total is zero.
+7. Current status endpoints must use hot tables, not history scans.
+8. Vehicle SOC must stay within 0-100.
+9. Analytics should not use current status for 24-hour totals.
+10. Equal timestamp ingestion should be deterministic.
+11. Disabled alert rules should not create alert events.
+12. Failed ingestion should not create audit logs.
+13. Pending or failed export jobs cannot be downloaded.
+14. Export rows must match requested date range.
+15. Negative energy readings should be rejected without DB mutation.
