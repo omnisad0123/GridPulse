@@ -5,6 +5,19 @@ table {
   border: 1px solid #dde6e8;
 }
 
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background: #f4faf9;
+}
+
 th, td {
   padding: 0.8rem;
   border-bottom: 1px solid #edf2f3;
@@ -28,4 +41,85 @@ th {
 .status-list dd {
   margin: 0.25rem 0 0;
   font-weight: 700;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.badge-neutral {
+  background: #edf2f3;
+  color: #435157;
+}
+
+.badge-success {
+  background: #e3f5ef;
+  color: #116466;
+}
+
+.badge-warning {
+  background: #fff3d1;
+  color: #8a6200;
+}
+
+.badge-danger {
+  background: #fde5df;
+  color: #a53527;
+}
+
+.bar {
+  height: 12px;
+  background: #edf2f3;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: #2c7873;
+}
+
+.muted {
+  color: #65777d;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 32, 38, 0.42);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  width: min(620px, 100%);
+  padding: 1rem;
+}
+
+.modal header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

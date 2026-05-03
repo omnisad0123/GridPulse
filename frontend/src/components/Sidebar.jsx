@@ -5,6 +5,8 @@ const links = [
   ['/ingest', 'Ingest'],
   ['/meters', 'Meters'],
   ['/vehicles', 'Vehicles'],
+  ['/meter-history', 'Meter history'],
+  ['/vehicle-history', 'Vehicle history'],
   ['/vehicle-analytics', 'Vehicle analytics'],
   ['/fleet', 'Fleet'],
   ['/alerts', 'Alerts'],
