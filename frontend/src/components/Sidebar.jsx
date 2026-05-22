@@ -12,6 +12,7 @@ const links = [
   ['/alerts', 'Alerts'],
   ['/exports', 'Exports'],
   ['/audit', 'Audit'],
+  ['/reports', 'Reports'],
 ];
 
 export default function Sidebar() {

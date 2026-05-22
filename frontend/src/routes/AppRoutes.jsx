@@ -10,6 +10,7 @@ import ExportJobs from '../pages/ExportJobs.jsx';
 import AuditLogs from '../pages/AuditLogs.jsx';
 import MeterHistory from '../pages/MeterHistory.jsx';
 import VehicleHistory from '../pages/VehicleHistory.jsx';
+import Reports from '../pages/Reports.jsx';
 
 export default function AppRoutes() {
   return (
@@ -25,6 +26,7 @@ export default function AppRoutes() {
       <Route path="/alerts" element={<Alerts />} />
       <Route path="/exports" element={<ExportJobs />} />
       <Route path="/audit" element={<AuditLogs />} />
+      <Route path="/reports" element={<Reports />} />
     </Routes>
   );
 }
