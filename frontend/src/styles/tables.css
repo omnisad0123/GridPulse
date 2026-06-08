@@ -1,0 +1,31 @@
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid #dde6e8;
+}
+
+th, td {
+  padding: 0.8rem;
+  border-bottom: 1px solid #edf2f3;
+  text-align: left;
+}
+
+th {
+  background: #eef4f5;
+}
+
+.status-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.status-list dt {
+  color: #65777d;
+}
+
+.status-list dd {
+  margin: 0.25rem 0 0;
+  font-weight: 700;
+}
