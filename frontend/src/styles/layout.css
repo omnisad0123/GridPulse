@@ -1,0 +1,73 @@
+.app-shell {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: #172026;
+  color: white;
+  padding: 1.25rem;
+}
+
+.brand {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: #d9b44a;
+  color: #172026;
+  border-radius: 8px;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.sidebar a {
+  color: #dfe9e9;
+  text-decoration: none;
+  padding: 0.65rem 0.75rem;
+  border-radius: 6px;
+}
+
+.sidebar a.active {
+  background: #2c7873;
+  color: white;
+}
+
+.main-panel {
+  min-width: 0;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: white;
+  border-bottom: 1px solid #dde6e8;
+}
+
+.navbar h1, .navbar p {
+  margin: 0;
+}
+
+.content {
+  padding: 1.5rem;
+}
+
+.page-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.status-pill {
+  background: #e3f5ef;
+  color: #116466;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+}
