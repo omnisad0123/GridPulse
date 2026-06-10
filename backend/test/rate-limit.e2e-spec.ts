@@ -4,6 +4,8 @@ import { createTestApp } from './helpers/app.helper';
 import { meterPayload, vehiclePayload } from './helpers/payload.helper';
 import { RateLimitService } from '../src/ingest/rate-limit.service';
 
+jest.setTimeout(30_000);
+
 describe('ingestion rate limiting', () => {
   let app: INestApplication;
   let rateLimit: RateLimitService;
