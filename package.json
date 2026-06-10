@@ -2,6 +2,7 @@
   "name": "gridpulse-root",
   "private": true,
   "scripts": {
+    "build": "npm run build:backend",
     "test": "cd backend && npm test",
     "test:backend": "cd backend && npm test",
     "test:ingest": "cd backend && npm run test:ingest",
