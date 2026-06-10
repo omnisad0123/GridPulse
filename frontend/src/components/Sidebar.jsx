@@ -13,6 +13,15 @@ const links = [
   ['/exports', 'Exports'],
   ['/audit', 'Audit'],
   ['/reports', 'Reports'],
+  ['/devices', 'Devices'],
+  ['/tariffs', 'Tariffs'],
+  ['/anomalies', 'Anomalies'],
+  ['/forecasts', 'Forecasts'],
+  ['/reconciliation', 'Reconciliation'],
+  ['/sla', 'SLA'],
+  ['/capacity', 'Capacity'],
+  ['/maintenance', 'Maintenance'],
+  ['/notifications', 'Notifications'],
 ];
 
 export default function Sidebar() {

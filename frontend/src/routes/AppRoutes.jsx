@@ -11,6 +11,15 @@ import AuditLogs from '../pages/AuditLogs.jsx';
 import MeterHistory from '../pages/MeterHistory.jsx';
 import VehicleHistory from '../pages/VehicleHistory.jsx';
 import Reports from '../pages/Reports.jsx';
+import Devices from '../pages/Devices.jsx';
+import Tariffs from '../pages/Tariffs.jsx';
+import Anomalies from '../pages/Anomalies.jsx';
+import Forecasts from '../pages/Forecasts.jsx';
+import Reconciliation from '../pages/Reconciliation.jsx';
+import Sla from '../pages/Sla.jsx';
+import Capacity from '../pages/Capacity.jsx';
+import Maintenance from '../pages/Maintenance.jsx';
+import Notifications from '../pages/Notifications.jsx';
 
 export default function AppRoutes() {
   return (
@@ -27,6 +36,15 @@ export default function AppRoutes() {
       <Route path="/exports" element={<ExportJobs />} />
       <Route path="/audit" element={<AuditLogs />} />
       <Route path="/reports" element={<Reports />} />
+      <Route path="/devices" element={<Devices />} />
+      <Route path="/tariffs" element={<Tariffs />} />
+      <Route path="/anomalies" element={<Anomalies />} />
+      <Route path="/forecasts" element={<Forecasts />} />
+      <Route path="/reconciliation" element={<Reconciliation />} />
+      <Route path="/sla" element={<Sla />} />
+      <Route path="/capacity" element={<Capacity />} />
+      <Route path="/maintenance" element={<Maintenance />} />
+      <Route path="/notifications" element={<Notifications />} />
     </Routes>
   );
 }
